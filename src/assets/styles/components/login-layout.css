@@ -1,0 +1,14 @@
+.parent-login-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-layout {
+  width: 30%;
+  padding: 20px 25px;
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.19),
+    0 6px 6px rgba(0, 0, 0, 0.23);
+}
