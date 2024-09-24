@@ -31,12 +31,15 @@
 </template>
 
 <script>
+import axios from 'axios'
 import InputField from '@/components/common/InputField.vue'
 import MyButton from '@/components/common/MyButton.vue'
 import ForgotPassword from '@/components/common/ForgotPassword.vue'
 import NotAccountSignUp from '@/components/common/NotAccountSignUp.vue'
 
 import FormError from '@/components/common/FormError.vue'
+
+import { isLengthMinimumValid, isLengthMaximumValid } from '../../../validators/validations.ts'
 
 export default {
   name: 'LoginForm',
@@ -51,16 +54,43 @@ export default {
     return {
       email: '',
       password: '',
-      error: null
+      error: null,
+      loading: false
     }
   },
   methods: {
-    handleLogin() {
-      if (!this.email || !this.password) {
-        this.error = 'Todos los campos son obligatorios'
+    async handleLogin() {
+      if (
+        !isLengthMinimumValid(this.password, 8) ||
+        !isLengthMaximumValid(this.password, 40) ||
+        !isLengthMinimumValid(this.email, 8) ||
+        !isLengthMaximumValid(this.email, 40)
+      ) {
+        this.error = 'Su correo o contraseña estan mal, porfavor intente de nuevo'
         return
       }
       // Lógica para enviar los datos de login (ej. llamada a la API)
+      this.error = null
+      this.loading = true
+      try {
+        // esa url "https://tu-api.com/login" es solo de ejemplo ahi debe colocarse la API de verdad ed LÑaravel
+        const response = await axios.post('https://tu-api.com/login', {
+          email: this.email,
+          password: this.password
+        })
+
+        // Manejo de exito
+        console.log('Login exitoso', response.data)
+      } catch (error) {
+        // Manejo de errores
+        console.log(error)
+        this.error = error.response?.data?.message || 'Error al iniciar sesión'
+      } finally {
+        this.loading = false
+      }
+    },
+    clearError() {
+      this.error = null
     }
   }
 }
