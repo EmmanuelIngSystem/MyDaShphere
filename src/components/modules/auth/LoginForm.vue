@@ -1,4 +1,5 @@
 <template>
+  <LoaderDots :isLoading="loading" />
   <form @submit.prevent="handleLogin">
     <InputField
       label="Correo"
@@ -32,6 +33,7 @@
 
 <script>
 import axios from 'axios'
+import LoaderDots from '@/components/common/LoaderDots.vue'
 import InputField from '@/components/common/InputField.vue'
 import MyButton from '@/components/common/MyButton.vue'
 import ForgotPassword from '@/components/common/ForgotPassword.vue'
@@ -44,6 +46,7 @@ import { isLengthMinimumValid, isLengthMaximumValid } from '../../../validators/
 export default {
   name: 'LoginForm',
   components: {
+    LoaderDots,
     InputField,
     MyButton,
     ForgotPassword,
@@ -60,24 +63,45 @@ export default {
   },
   methods: {
     async handleLogin() {
-      if (
-        !isLengthMinimumValid(this.password, 8) ||
-        !isLengthMaximumValid(this.password, 40) ||
-        !isLengthMinimumValid(this.email, 8) ||
-        !isLengthMaximumValid(this.email, 40)
-      ) {
-        this.error = 'Su correo o contraseña estan mal, porfavor intente de nuevo'
-        return
-      }
-      // Lógica para enviar los datos de login (ej. llamada a la API)
-      this.error = null
-      this.loading = true
       try {
-        // esa url "https://tu-api.com/login" es solo de ejemplo ahi debe colocarse la API de verdad ed LÑaravel
-        const response = await axios.post('https://tu-api.com/login', {
-          email: this.email,
-          password: this.password
+        console.log(`valor de loading al entrar al metodo handleLogin: ${this.loading}`)
+
+        this.error = null
+        this.loading = true
+        // await this.$nextTick()
+        console.log(`valor de loading despues de setearlo a true: ${this.loading}`)
+
+        // Esperar a que Vue procese el cambio en `loading`
+        await this.$nextTick()
+
+        if (
+          !isLengthMinimumValid(this.password, 8) ||
+          !isLengthMaximumValid(this.password, 40) ||
+          !isLengthMinimumValid(this.email, 8) ||
+          !isLengthMaximumValid(this.email, 40)
+        ) {
+          // Usar un pequeño retardo antes de ocultar el loader
+          setTimeout(() => {
+            this.loading = false
+            this.error = 'Su correo o contraseña están mal, por favor intente de nuevo'
+          }, 1000) // Retardo de 1000ms
+        }
+
+        // ejemplo de peticion correcta por get que devuelvo todos los paises en formato XML
+        const response = await axios.get('http://api.geonames.org/countryInfo', {
+          params: {
+            username: 'emanuel_le_dcn'
+          }
         })
+        /*
+        const response = await axios.post(
+          'http://api.geonames.org/countryInfo?username=emanuel_le_dcn',
+          {
+            email: this.email,
+            password: this.password
+          }
+        )
+          */
 
         // Manejo de exito
         console.log('Login exitoso', response.data)
